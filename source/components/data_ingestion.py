@@ -12,7 +12,7 @@ THREAD = None
 RESULTS_QUEUE = queue.Queue()  # For passing results from inference thread to UI
 
 class MicrophoneStreamer:
-    def __init__(self, rate=16000, frame_ms=20):
+    def __init__(self, rate=16000, frame_ms=30):
         self.rate = rate
         self.frame_ms = frame_ms
         self.frame_len = int(rate * frame_ms/1000)  # e.g. 320 samples

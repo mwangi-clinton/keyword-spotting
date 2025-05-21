@@ -33,7 +33,7 @@ class SbuLSTMClassifier(nn.Module):
                  n_mels: int            = 40,
                  hidden_dim: int        = 128,
                  uni_layers: int        = 1,
-                 num_classes: int       = 30,
+                 num_classes: int       = 10,
                  dropout: float         = 0.3):
         super(SbuLSTMClassifier, self).__init__()
         # 1) Bidirectional LSTM feature extractor

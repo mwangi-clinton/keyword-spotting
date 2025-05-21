@@ -1,16 +1,7 @@
-import dash
-from dash import html, dcc
-from dash.dependencies import Input, Output, State
-import sounddevice as sd
-import webrtcvad
 import torch
 import librosa
-import queue
 import numpy as np
-# ─── Global state and queues ──────────────────────────────────────────────────
-RUNNING = False
-THREAD = None
-RESULTS_QUEUE = queue.Queue()  # For passing results from inference thread to UI
+
 class LiveKeywordSpotter:
     def __init__(self, model_path, device='cpu'):
         self.device = torch.device(device)
@@ -19,7 +10,7 @@ class LiveKeywordSpotter:
         self.model = SbuLSTMFusion(
             n_mels=40, n_mfcc=13,
             hidden_dim=128,
-            num_classes=31, dropout=0.3
+            num_classes=10, dropout=0.3
         ).to(self.device).eval()
         self.model.load_state_dict(torch.load(model_path, map_location=self.device))
 
@@ -28,12 +19,8 @@ class LiveKeywordSpotter:
         
         # Label mapping
         self.idx2label = {
-            0: "_background_noise_", 1: "bed", 2: "bird", 3: "cat", 4: "dog", 5: "down", 
-            6: "eight", 7: "five", 8: "four", 9: "go", 10: "happy", 
-            11: "house", 12: "left", 13: "marvin", 14: "nine", 15: "no", 
-            16: "off", 17: "on", 18: "one", 19: "right", 20: "seven", 
-            21: "sheila", 22: "six", 23: "stop", 24: "three", 25: "tree", 
-            26: "two", 27: "up", 28: "wow", 29: "yes", 30: "zero"
+            0: "down", 1: "go", 2: "left", 3: "no", 4: "off", 
+            5: "on", 6: "right", 7: "stop", 8: "up", 9: "yes"
         }
 
         # Create a mapping from keywords to indices
@@ -44,9 +31,9 @@ class LiveKeywordSpotter:
 
         # mel/MFCC params
         self.sr = 16000
-        self.n_fft = 512  # Reduced from 1024 for faster processing
-        self.win_length = 400  # Reduced from 800 for faster processing
-        self.hop_length = 160  # Reduced from 400 for faster processing
+        self.n_fft = 1024  
+        self.win_length = 800  
+        self.hop_length = 400  
         self.n_mels = 40
         self.n_mfcc = 13
 
@@ -95,22 +82,14 @@ class LiveKeywordSpotter:
             logits = self.model(mel_tensor, mfcc_tensor)
             probs = torch.nn.functional.softmax(logits, dim=1)[0]
             
-            # Filter to only include target keywords
-            filtered_probs = {idx: probs[idx].item() for idx in self.target_indices.values()}
-            
             # Get the highest probability keyword
-            if filtered_probs:
-                pred_idx = max(filtered_probs, key=filtered_probs.get)
-                confidence = filtered_probs[pred_idx]
-                
-                # Only print predictions with confidence > 0.3
-                if confidence > 0.3:
-                    print(f"Top prediction: {self.idx2label[pred_idx]} with confidence {confidence:.4f}")
-                
-                # Return the prediction and confidence regardless of threshold
-                pred_label = self.idx2label.get(pred_idx)
-                return pred_idx, pred_label, confidence
+            pred_idx = torch.argmax(probs).item()
+            confidence = probs[pred_idx].item()
             
-            # Return background noise if no target keyword detected
-            return 0, "_background_noise_", 0.0
-
+            # Only print predictions with confidence > 0.3
+            if confidence > 0.3:
+                print(f"Top prediction: {self.idx2label[pred_idx]} with confidence {confidence:.4f}")
+            
+            # Return the prediction and confidence regardless of threshold
+            pred_label = self.idx2label.get(pred_idx)
+            return pred_idx, pred_label, confidence
