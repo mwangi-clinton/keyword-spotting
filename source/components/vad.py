@@ -8,7 +8,7 @@ RUNNING = False
 THREAD = None
 RESULTS_QUEUE = queue.Queue()  # For passing results from inference thread to UI
 class VAD:
-    def __init__(self, sample_rate=16000, frame_ms=30, mode=3):
+    def __init__(self, sample_rate=16000, frame_ms=30, mode=2):
         """
         mode=0..3, higher = more aggressive filtering
         """

@@ -31,9 +31,9 @@ class LiveKeywordSpotter:
 
         # mel/MFCC params
         self.sr = 16000
-        self.n_fft = 1024  
-        self.win_length = 800  
-        self.hop_length = 400  
+        self.n_fft = 512 
+        self.win_length = 400
+        self.hop_length = 200 
         self.n_mels = 40
         self.n_mfcc = 13
 
