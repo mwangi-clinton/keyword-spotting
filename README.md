@@ -48,9 +48,9 @@ Example structure:
 
 ---
 
-## 🧠 Train the Model
+## Train the Model
 
-Use the `speech_command_train.py` script to train an LSTM classifier.
+Use the `speech_command_train.py` script to train an the classifier.
 
 ### Example Command:
 
@@ -80,37 +80,10 @@ python speech_command_train.py \
 
 ---
 
-## 🛠 Requirements
 
-You can define your `requirements.txt` with the following:
 
-```
-torch
-torchaudio
-numpy
-```
 
----
 
-## 🔒 .gitignore
 
-To avoid tracking the virtual environment or dataset, ensure `.gitignore` includes:
 
-```
-venv/
-__pycache__/
-*.pth
-*.zip
-*.tar.gz
-*.wav
-```
 
----
-
-## 📬 Contact
-
-For any questions or suggestions, feel free to reach out.
-
----
-
-Happy training! 🧠🎧
